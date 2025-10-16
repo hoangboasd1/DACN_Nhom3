@@ -1,0 +1,6 @@
+ecommerce-frontend/node_modules
+ecommerce-frontend/.next
+
+EcommerceBackend/bin/
+EcommerceBackend/obj/
+EcommerceBackend/wwwroot/
