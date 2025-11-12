@@ -162,7 +162,7 @@ export default function Category(){
             color: '#374151', // màu xám đậm đơn giản
             mb: 1
           }}>
-            🏷️ Quản lý Danh mục
+             Quản lý Danh mục
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
             Quản lý các danh mục sản phẩm trong hệ thống
@@ -215,7 +215,7 @@ export default function Category(){
       {/* Categories List */}
       {categories.length === 0 ? (
         <Alert severity="info">
-          📂 Chưa có danh mục nào. Hãy thêm danh mục đầu tiên!
+           Chưa có danh mục nào. Hãy thêm danh mục đầu tiên!
         </Alert>
       ) : (
         <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
