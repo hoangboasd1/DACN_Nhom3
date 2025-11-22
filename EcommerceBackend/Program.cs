@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EcommerceBackend.Hubs;
 using Services;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 
 var options = new WebApplicationOptions
@@ -14,8 +15,9 @@ var builder = WebApplication.CreateBuilder(options);
 
 //Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration
-    .GetConnectionString("DefaultConnection"))
+    options.UseMySql(builder.Configuration
+    .GetConnectionString("DefaultConnection"), 
+    new MySqlServerVersion(new Version(8, 0, 21)))
 );
 
 // Add Services
