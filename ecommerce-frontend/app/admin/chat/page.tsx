@@ -11,16 +11,10 @@ import {
   MoreVertical,
   Phone,
   Video,
-  Paperclip,
-  Smile,
   CheckCheck,
   Check,
   User as UserIcon,
   Shield,
-  Crown,
-  MapPin,
-  Mail,
-  Calendar,
   X
   } from 'lucide-react';
   import { Message, Conversation, User } from '../../../types/chat';
@@ -197,11 +191,9 @@ const AdminChatPage = () => {
     
     if (confirmDelete) {
       try {
-        // Gửi tin nhắn xác nhận xóa tới user
+  
         const confirmMessage = "Nếu không còn vấn đề gì nữa, bạn có thể đóng cuộc hội thoại này. Nhấn xác nhận để xóa hội thoại.";
         await chatService.sendMessageToUser(userId, confirmMessage);
-        
-        // Có thể thêm thông báo thành công
         alert(`Đã gửi yêu cầu xác nhận xóa cuộc hội thoại tới ${userName}`);
       } catch (error) {
         console.error('Error sending delete confirmation:', error);
@@ -259,538 +251,362 @@ const AdminChatPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="mx-auto max-w-6xl space-y-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500 text-white rounded-lg">
+              <MessageCircle size={20} />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                <div className="p-2 bg-blue-500 rounded-xl mr-4">
-                  <MessageCircle className="text-white" size={28} />
-                </div>
-                Trung tâm Chat Admin
-              </h1>
-              <p className="text-gray-600 mt-2">Hỗ trợ khách hàng 24/7 với giao diện hiện đại</p>
+              <h1 className="text-xl font-semibold text-gray-900">Trung tâm Chat Admin</h1>
+              <p className="text-sm text-gray-500">Theo dõi và hỗ trợ khách hàng nhanh chóng</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center bg-white rounded-full px-4 py-2 shadow-md">
-                <Shield className="text-blue-500 mr-2" size={20} />
-                <span className="text-sm font-medium">Admin Mode</span>
-              </div>
-              <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                {conversations.length} cuộc hội thoại
-              </div>
-            </div>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+           
+            <span className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full font-medium">
+              {conversations.length} cuộc hội thoại
+            </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden" style={{ height: '75vh' }}>
-          <div className="flex h-full">
-            {/* Sidebar - Modern Design */}
-            <div className="w-1/3 bg-white border-r border-gray-100 flex flex-col">
-              {/* Search and Toggle */}
-              <div className="p-6 border-b border-gray-100">
-                <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Tìm kiếm khách hàng..."
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl border-0 focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                  />
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setShowUsers(false)}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
-                      !showUsers 
-                        ? 'bg-blue-500 text-white shadow-md' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <MessageCircle size={16} className="inline mr-2" />
-                    Cuộc hội thoại
-                  </button>
-                  <button
-                    onClick={() => setShowUsers(true)}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
-                      showUsers 
-                        ? 'bg-blue-500 text-white shadow-md' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Users size={16} className="inline mr-2" />
-                    Khách hàng
-                  </button>
-                </div>
+        <div className="flex flex-row gap-4 h-[75vh] overflow-hidden">
+          {/* Sidebar */}
+          <section className="bg-white border border-gray-200 rounded-xl flex flex-col">
+            <div className="border-b border-gray-200 p-4 space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm khách hàng hoặc cuộc chat"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 focus:border-blue-500 focus:bg-white focus:outline-none"
+                />
               </div>
+              <div className="flex gap-2 text-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowUsers(false)}
+                  className={`flex-1 rounded-lg border px-3 py-2 transition ${
+                    !showUsers ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 text-gray-600'
+                  }`}
+                >
+                  Cuộc hội thoại
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowUsers(true)}
+                  className={`flex-1 rounded-lg border px-3 py-2 transition ${
+                    showUsers ? 'border-blue-500 bg-blue-50 text-blue-600' : 'border-gray-200 text-gray-600'
+                  }`}
+                >
+                  Khách hàng
+                </button>
+              </div>
+            </div>
 
-              {/* Content Area */}
-              <div className="flex-1 overflow-hidden">
-                {!showUsers ? (
-                  /* Conversations List */
-                  <div className="h-full overflow-y-auto">
-                    {filteredConversations.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                        <MessageCircle size={48} className="mb-4 text-gray-300" />
-                        <p className="text-lg font-medium">Chưa có cuộc hội thoại</p>
-                        <p className="text-sm">Khách hàng sẽ xuất hiện ở đây khi họ liên hệ</p>
-                      </div>
-                    ) : (
-                      filteredConversations.map((conv) => (
-                        <div
-                          key={conv.otherUserId}
-                          className={`p-4 border-b border-gray-50 transition-all cursor-pointer group ${
-                            selectedConversation === conv.otherUserId 
-                              ? 'bg-blue-50 border-l-4 border-l-blue-500' 
-                              : 'hover:bg-gray-50'
-                          }`}
-                          onClick={() => selectConversation(conv.otherUserId)}
-                        >
-                          <div className="flex items-start space-x-3">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                              conv.unreadCount > 0 
-                                ? 'bg-blue-500' 
-                                : 'bg-gray-200'
-                            }`}>
-                              <UserIcon className="text-white" size={20} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-gray-900 truncate">
-                                  {conv.otherUserName}
-                                </h4>
-                                <div className="flex items-center space-x-2">
-                                  {conv.unreadCount > 0 && (
-                                    <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 font-medium">
-                                      {conv.unreadCount}
-                                    </span>
-                                  )}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteConversation(conv.otherUserId, conv.otherUserName);
-                                    }}
-                                    className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-all"
-                                    title="Xóa cuộc hội thoại"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              </div>
-                              <p className="text-sm text-gray-600 truncate mt-1">
-                                {conv.lastMessage}
-                              </p>
-                              <div className="flex items-center text-xs text-gray-400 mt-2">
-                                <Clock size={12} className="mr-1" />
-                                {formatTime(conv.lastMessageTime)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
+            <div className="flex-1 overflow-y-auto">
+              {!showUsers ? (
+                filteredConversations.length === 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center text-sm text-gray-500">
+                    <MessageCircle className="mb-2 text-gray-300" size={36} />
+                    <p>Chưa có cuộc trò chuyện</p>
                   </div>
                 ) : (
-                  /* Users List */
-                  <div className="h-full overflow-y-auto">
-                    {filteredUsers.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                        <Users size={48} className="mb-4 text-gray-300" />
-                        <p className="text-lg font-medium">Chưa có khách hàng</p>
-                        <p className="text-sm">Danh sách khách hàng sẽ hiển thị ở đây</p>
-                      </div>
-                    ) : (
-                      filteredUsers.map((user) => (
+                  filteredConversations.map((conv) => (
+                    <button
+                      type="button"
+                      key={conv.otherUserId}
+                      onClick={() => selectConversation(conv.otherUserId)}
+                      className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition ${
+                        selectedConversation === conv.otherUserId ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
                         <div
-                          key={user.id}
-                          onClick={() => startNewConversation(user.id)}
-                          className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-all cursor-pointer group"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                              <UserIcon className="text-white" size={18} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-900 truncate">{user.name}</h4>
-                              <p className="text-sm text-gray-500 truncate">{user.email}</p>
-                            </div>
-                            <div className="opacity-0 group-hover:opacity-100">
-                              <MessageCircle className="text-blue-500" size={16} />
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Chat Area - Modern Design */}
-            <div className="w-2/3 flex flex-col bg-white">
-              {selectedConversation ? (
-                <>
-                  {/* Chat Header */}
-                  <div className="p-6 border-b border-gray-100 bg-white">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                          <UserIcon className="text-white" size={24} />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {selectedUser ? ('otherUserName' in selectedUser ? selectedUser.otherUserName : selectedUser.name) : 'Khách hàng'}
-                          </h3>
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                            <span className="text-sm text-gray-500">Đang hoạt động</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all">
-                          <Phone size={18} />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all">
-                          <Video size={18} />
-                        </button>
-                        <button 
-                          onClick={() => handleShowCustomerInfo(selectedConversation)}
-                          className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
-                          title="Xem thông tin khách hàng"
-                        >
-                          <MoreVertical size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Messages Area */}
-                  <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
-                    {isLoading ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                          <p className="text-gray-500">Đang tải tin nhắn...</p>
-                        </div>
-                      </div>
-                    ) : messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-center">
-                          <MessageCircle size={64} className="mx-auto mb-4 text-gray-300" />
-                          <h3 className="text-xl font-medium text-gray-900 mb-2">Bắt đầu cuộc trò chuyện</h3>
-                          <p className="text-gray-500">Gửi tin nhắn đầu tiên để hỗ trợ khách hàng</p>
-                        </div>
-                      </div>
-                    ) : (
-                      messages.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${
-                            message.senderId === currentUserId ? 'justify-end' : 'justify-start'
+                          className={`h-10 w-10 rounded-full flex items-center justify-center text-white ${
+                            conv.unreadCount ? 'bg-blue-500' : 'bg-gray-300'
                           }`}
                         >
+                          <UserIcon size={18} />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-sm text-gray-900 truncate">{conv.otherUserName}</p>
+                            <span className="text-xs text-gray-400">{formatTime(conv.lastMessageTime)}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 truncate">{conv.lastMessage}</p>
+                          {conv.unreadCount > 0 && (
+                            <span className="inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600">
+                              {conv.unreadCount} tin mới
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteConversation(conv.otherUserId, conv.otherUserName);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleDeleteConversation(conv.otherUserId, conv.otherUserName);
+                            }
+                          }}
+                          className="text-gray-400 hover:text-red-500"
+                          title="Đề nghị xóa cuộc hội thoại"
+                        >
+                          <Trash2 size={14} />
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )
+              ) : filteredUsers.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center text-sm text-gray-500">
+                  <Users className="mb-2 text-gray-300" size={36} />
+                  <p>Chưa có khách hàng</p>
+                </div>
+              ) : (
+                filteredUsers.map((user) => (
+                  <button
+                    type="button"
+                    key={user.id}
+                    onClick={() => startNewConversation(user.id)}
+                    className="w-full px-4 py-3 border-b border-gray-100 text-left hover:bg-gray-50 transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                        <UserIcon size={16} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </section>
+
+          {/* Chat Area */}
+          <section className="flex-1 bg-white border border-gray-200 rounded-xl flex flex-col">
+            {selectedConversation ? (
+              <>
+                <div className="border-b border-gray-200 p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                      <UserIcon size={22} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {selectedUser ? ('otherUserName' in selectedUser ? selectedUser.otherUserName : selectedUser.name) : 'Khách hàng'}
+                      </p>
+                      <span className="text-xs text-gray-500">Đang hoạt động</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <button className="rounded-lg border border-gray-200 p-2 hover:border-blue-400 hover:text-blue-500">
+                      <Phone size={16} />
+                    </button>
+                    <button className="rounded-lg border border-gray-200 p-2 hover:border-blue-400 hover:text-blue-500">
+                      <Video size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleShowCustomerInfo(selectedConversation)}
+                      className="rounded-lg border border-gray-200 p-2 hover:border-blue-400 hover:text-blue-500"
+                      title="Xem thông tin khách hàng"
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+                  {isLoading ? (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                      Đang tải tin nhắn...
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-center text-sm text-gray-500">
+                      Gửi tin đầu tiên để bắt đầu trao đổi.
+                    </div>
+                  ) : (
+                    messages.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`flex ${message.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div className="max-w-[70%] space-y-1">
+                          {message.senderId !== currentUserId && (
+                            <p className="text-xs text-gray-500">
+                              {message.senderName || (message.isFromAdmin ? 'Admin' : 'Khách hàng')}
+                            </p>
+                          )}
                           <div
-                            className={`max-w-[70%] group ${
-                              message.senderId === currentUserId ? 'flex flex-col items-end' : 'flex flex-col items-start'
+                            className={`rounded-lg px-3 py-2 text-sm ${
+                              message.senderId === currentUserId
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-white border border-gray-200 text-gray-800'
                             }`}
                           >
-                            {/* Sender Name */}
-                            {message.senderId !== currentUserId && (
-                              <div className="flex items-center space-x-2 mb-1">
-                                <div className={`text-xs font-medium ${
-                                  message.isFromAdmin ? 'text-blue-600' : 'text-gray-600'
-                                }`}>
-                                  {message.senderName || (message.isFromAdmin ? 'Admin' : 'Khách hàng')}
-                                </div>
-                                {message.isFromAdmin && (
-                                  <Crown className="text-yellow-500" size={12} />
-                                )}
-                              </div>
-                            )}
-                            
-                            {/* Message Bubble */}
+                            <p>{message.message}</p>
                             <div
-                              className={`relative p-4 rounded-2xl shadow-sm ${
-                                message.senderId === currentUserId
-                                  ? 'bg-blue-500 text-white'
-                                  : 'bg-white text-gray-800 border border-gray-100'
+                              className={`mt-1 flex items-center justify-end gap-1 text-xs ${
+                                message.senderId === currentUserId ? 'text-blue-100' : 'text-gray-400'
                               }`}
                             >
-                              <div className="text-sm leading-relaxed">{message.message}</div>
-                              
-                              {/* Message Time & Status */}
-                              <div className={`flex items-center justify-end mt-2 space-x-1 ${
-                                message.senderId === currentUserId ? 'text-blue-100' : 'text-gray-400'
-                              }`}>
-                                <span className="text-xs">{formatTime(message.createdAt)}</span>
-                                {message.senderId === currentUserId && (
-                                  <div className="flex items-center">
-                                    {message.isRead ? (
-                                      <CheckCheck size={14} className="text-blue-200" />
-                                    ) : (
-                                      <Check size={14} className="text-blue-200" />
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                              <span>{formatTime(message.createdAt)}</span>
+                              {message.senderId === currentUserId && (
+                                message.isRead ? <CheckCheck size={12} /> : <Check size={12} />
+                              )}
                             </div>
                           </div>
                         </div>
-                      ))
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-
-                  {/* Message Input */}
-                  <div className="p-6 bg-white border-t border-gray-100">
-                    <div className="flex items-end space-x-3">
-                      <div className="flex-1 relative">
-                        <div className="flex items-center bg-gray-50 rounded-2xl px-4 py-3 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all">
-                          <button className="p-1 text-gray-400 hover:text-gray-600 mr-2">
-                            <Paperclip size={18} />
-                          </button>
-                          <input
-                            type="text"
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                sendMessage();
-                              }
-                            }}
-                            placeholder="Nhập tin nhắn..."
-                            className="flex-1 bg-transparent border-0 outline-none text-gray-900 placeholder-gray-500"
-                          />
-                          <button className="p-1 text-gray-400 hover:text-gray-600 ml-2">
-                            <Smile size={18} />
-                          </button>
-                        </div>
                       </div>
-                      <button
-                        onClick={sendMessage}
-                        disabled={!newMessage.trim()}
-                        className="bg-blue-500 text-white p-3 rounded-2xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
-                      >
-                        <Send size={18} />
-                      </button>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                <div className="border-t border-gray-200 p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 focus-within:bg-white focus-within:border-blue-400">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                          }
+                        }}
+                        placeholder="Nhập tin nhắn..."
+                        className="w-full bg-transparent text-sm text-gray-700 focus:outline-none"
+                      />
                     </div>
-                  </div>
-                </>
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                      <MessageCircle size={48} className="text-blue-500" />
-                    </div>
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">Chọn cuộc hội thoại</h3>
-                    <p className="text-gray-500 max-w-md">
-                      Chọn một cuộc hội thoại từ danh sách bên trái hoặc bắt đầu trò chuyện với khách hàng mới
-                    </p>
+                    <button
+                      onClick={sendMessage}
+                      disabled={!newMessage.trim()}
+                      className="flex items-center justify-center rounded-lg bg-blue-500 px-4 py-2 text-white text-sm hover:bg-blue-600 disabled:opacity-50"
+                    >
+                      <Send size={16} />
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </>
+            ) : (
+              <div className="flex flex-1 flex-col items-center justify-center text-center text-gray-500">
+                <MessageCircle className="mb-2 text-gray-300" size={48} />
+                <p className="text-sm">Chọn một cuộc hội thoại ở danh sách bên trái</p>
+              </div>
+            )}
+          </section>
         </div>
       </div>
 
-      {/* Customer Info Popup */}
       {showCustomerInfo && selectedCustomerInfo && (
-        <div 
-          className="fixed inset-0 bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4"
           onClick={closeCustomerInfo}
         >
-          <div 
-            className="bg-white bg-opacity-95 backdrop-blur-md rounded-3xl shadow-2xl border border-white border-opacity-20 max-w-md w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+          <div
+            className="w-full max-w-md rounded-xl bg-white p-5 shadow-lg space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                  <UserIcon className="text-white" size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Thông tin khách hàng</h3>
-                  <p className="text-sm text-gray-500">Chi tiết tài khoản</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Thông tin khách hàng</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedCustomerInfo.name}</p>
               </div>
-              <button
-                onClick={closeCustomerInfo}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
-              >
-                <X size={20} />
+              <button className="text-gray-400 hover:text-gray-600" onClick={closeCustomerInfo}>
+                <X size={18} />
               </button>
             </div>
-
-            {/* Content */}
-            <div className="p-6 space-y-6">
-              {/* Basic Info */}
-              <div className="bg-blue-50 rounded-2xl p-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-                    <UserIcon className="text-white" size={32} />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-900">{selectedCustomerInfo.name}</h4>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-sm text-gray-600">{selectedCustomerInfo.status}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-600">
-                  <p className="flex items-center space-x-2">
-                    <Phone size={14} />
-                    <span>{selectedCustomerInfo.phone || 'Chưa cập nhật'}</span>
-                  </p>
-                </div>
+            <div className="space-y-2 text-sm text-gray-600">
+              <p>Số điện thoại: {selectedCustomerInfo.phone || 'Chưa cập nhật'}</p>
+              <p>Trạng thái: {selectedCustomerInfo.status || 'Không rõ'}</p>
+              <p>Tham gia: {selectedCustomerInfo.joinDate}</p>
+              <p>Đơn gần nhất: {selectedCustomerInfo.lastOrderDate || 'Chưa có'}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="rounded-lg border border-gray-200 p-3">
+                <p className="text-xs text-gray-500">Đơn hàng</p>
+                <p className="text-lg font-semibold text-gray-900">{selectedCustomerInfo.totalOrders}</p>
               </div>
-
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600">{selectedCustomerInfo.totalOrders}</div>
-                  <div className="text-sm text-gray-500">Đơn hàng</div>
-                </div>
-                <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">{selectedCustomerInfo.totalSpent?.toLocaleString('vi-VN')}₫</div>
-                  <div className="text-sm text-gray-500">Đã chi tiêu</div>
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-sm text-gray-600 flex items-center">
-                    <Calendar className="mr-2" size={16} />
-                    Tham gia
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">{selectedCustomerInfo.joinDate}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-sm text-gray-600 flex items-center">
-                    <Clock className="mr-2" size={16} />
-                    Đơn hàng cuối
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">{selectedCustomerInfo.lastOrderDate || 'Chưa có'}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3 pt-4">
-                <button 
-                  onClick={() => handleShowOrderHistory(selectedCustomerInfo.userId)}
-                  className="flex-1 bg-blue-500 text-white py-3 px-4 rounded-xl font-medium hover:bg-blue-600 transition-all"
-                >
-                  Lịch sử mua
-                </button>
-                <button className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-all">
-                  Gửi email
-                </button>
+              <div className="rounded-lg border border-gray-200 p-3">
+                <p className="text-xs text-gray-500">Đã chi tiêu</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {selectedCustomerInfo.totalSpent?.toLocaleString('vi-VN')}₫
+                </p>
               </div>
             </div>
+            <button
+              onClick={() => handleShowOrderHistory(selectedCustomerInfo.userId)}
+              className="w-full rounded-lg bg-blue-500 py-2 text-white text-sm hover:bg-blue-600"
+            >
+              Xem lịch sử mua hàng
+            </button>
           </div>
         </div>
       )}
 
-      {/* Order History Popup */}
       {showOrderHistory && (
-        <div 
-          className="fixed inset-0 bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4"
           onClick={closeOrderHistory}
         >
-          <div 
-            className="bg-white bg-opacity-95 backdrop-blur-md rounded-3xl shadow-2xl border border-white border-opacity-20 max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+          <div
+            className="w-full max-w-3xl rounded-xl bg-white p-5 shadow-lg space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                  <Calendar className="text-white" size={24} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Lịch sử mua hàng</h3>
-                  <p className="text-sm text-gray-500">Danh sách đơn hàng của khách hàng</p>
-                </div>
-              </div>
-              <button
-                onClick={closeOrderHistory}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
-              >
-                <X size={20} />
+            <div className="flex items-center justify-between">
+              <p className="text-lg font-semibold text-gray-900">Lịch sử mua hàng</p>
+              <button className="text-gray-400 hover:text-gray-600" onClick={closeOrderHistory}>
+                <X size={18} />
               </button>
             </div>
-
-            {/* Content */}
-            <div className="p-6">
-              {customerOrders.length === 0 ? (
-                <div className="text-center py-12">
-                  <Calendar size={64} className="mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-xl font-medium text-gray-900 mb-2">Chưa có đơn hàng</h3>
-                  <p className="text-gray-500">Khách hàng chưa có đơn hàng nào</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {customerOrders.map((order) => (
-                    <div key={order.orderId} className="bg-white border border-gray-100 rounded-2xl p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">#{order.orderId}</span>
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900">Đơn hàng #{order.orderId}</h4>
-                            <p className="text-sm text-gray-500">{formatDate(order.orderDate)}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-green-600">{order.totalAmount?.toLocaleString('vi-VN')}₫</div>
-                          <div className={`text-sm px-2 py-1 rounded-full ${
-                            order.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
-                            order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {order.status === 'Completed' ? 'Hoàn thành' :
-                             order.status === 'Processing' ? 'Đang xử lý' :
-                             order.status === 'Pending' ? 'Chờ xử lý' :
-                             'Đã hủy'}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Order Details */}
-                      {order.orderDetails && order.orderDetails.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <h5 className="text-sm font-medium text-gray-700 mb-2">Sản phẩm:</h5>
-                          <div className="space-y-2">
-                            {order.orderDetails.map((detail: any, index: number) => (
-                              <div key={index} className="flex items-center justify-between text-sm">
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-gray-600">{detail.product?.name || 'Sản phẩm không xác định'}</span>
-                                  <span className="text-gray-400">x{detail.quantity}</span>
-                                </div>
-                                <span className="font-medium text-gray-900">
-                                  {(detail.product?.price * detail.quantity)?.toLocaleString('vi-VN')}₫
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+            {customerOrders.length === 0 ? (
+              <p className="text-sm text-gray-500">Khách hàng chưa có đơn hàng nào.</p>
+            ) : (
+              <div className="space-y-3">
+                {customerOrders.map((order) => (
+                  <div key={order.orderId} className="rounded-lg border border-gray-200 p-4 space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-gray-900">Đơn #{order.orderId}</p>
+                      <span className="text-gray-500">{formatDate(order.orderDate)}</span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <p className="text-gray-600">
+                      Tổng tiền:{' '}
+                      <span className="font-medium text-gray-900">{order.totalAmount?.toLocaleString('vi-VN')}₫</span>
+                    </p>
+                    <p className="text-gray-600">
+                      Trạng thái: <span className="font-medium text-gray-900">{order.status}</span>
+                    </p>
+                    {order.orderDetails && order.orderDetails.length > 0 && (
+                      <div className="rounded bg-gray-50 p-3 space-y-1">
+                        {order.orderDetails.map((detail: any, index: number) => (
+                          <div key={index} className="flex justify-between text-xs text-gray-600">
+                            <span>
+                              {detail.product?.name || 'Sản phẩm không xác định'} x{detail.quantity}
+                            </span>
+                            <span>
+                              {(detail.product?.price * detail.quantity)?.toLocaleString('vi-VN')}₫
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
