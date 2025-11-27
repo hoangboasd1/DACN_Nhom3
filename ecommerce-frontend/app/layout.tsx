@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { ChatProvider } from "../components/chat/ChatProvider";
+import { CartProvider } from "../contexts/CartContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "E-commerce Store",
+  title: "LazyShop",
   description: "Your one-stop shop for fashion",
 };
 
@@ -33,23 +35,46 @@ export default function RootLayout({
           toastOptions={{
             duration: 2000,
             style: {
-              background: '#333',
-              color: '#fff',
+              background: '#ffffff',
+              color: '#000000',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0px',
+              fontSize: '14px',
+              fontWeight: '400',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             },
             success: {
               style: {
-                background: '#22c55e',
+                background: '#ffffff',
+                color: '#000000',
+                border: '1px solid #000000',
+              },
+              iconTheme: {
+                primary: '#000000',
+                secondary: '#ffffff',
               },
             },
             error: {
               style: {
-                background: '#ef4444',
+                background: '#ffffff',
+                color: '#000000',
+                border: '1px solid #ef4444',
+              },
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#ffffff',
               },
               duration: 3000,
             },
           }}
         />
-        {children}
+        <ChatProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </ChatProvider>
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ namespace Controllers{
 
         //Thêm sản phẩm vào giỏ hàng
         [HttpPost("add")]
-        // [Authorize]
+        [Authorize]
         public async Task<IActionResult> AddToCart([FromBody] CartRequest request)
         {
 
@@ -30,12 +30,40 @@ namespace Controllers{
             if (product == null)
                 return NotFound("Không tìm thấy sản phẩm.");
 
+            // Nếu có ProductVariantId, kiểm tra biến thể
+            ProductVariant? variant = null;
+            if (request.ProductVariantId.HasValue)
+            {
+                variant = await _context.ProductVariants
+                    .Include(pv => pv.Color)
+                    .Include(pv => pv.Size)
+                    .FirstOrDefaultAsync(pv => pv.Id == request.ProductVariantId.Value && pv.ProductId == request.ProductId);
+                
+                if (variant == null)
+                    return NotFound("Không tìm thấy biến thể sản phẩm.");
+                
+                if (!variant.IsActive)
+                    return BadRequest("Biến thể sản phẩm không khả dụng.");
+            }
+
+            // Kiểm tra tồn kho
+            int availableStock = variant?.StockQuantity ?? product.Instock;
+            if (availableStock <= 0)
+                return BadRequest("Sản phẩm đã hết hàng.");
+
             //Kiểm tra xem sản phẩm có tồn tại trong giỏ hàng chưa
             var existingCart = await _context.Carts.FirstOrDefaultAsync(
-                c => c.UserId == userId && c.ProductId == request.ProductId);
+                c => c.UserId == userId && c.ProductId == request.ProductId && c.ProductVariantId == request.ProductVariantId);
+            
+            int newQuantity = existingCart != null ? existingCart.Quantity + request.Quantity : request.Quantity;
+            
+            // Kiểm tra tổng số lượng trong giỏ hàng không vượt quá tồn kho
+            if (newQuantity > availableStock)
+                return BadRequest($"Số lượng vượt quá tồn kho. Chỉ còn {availableStock} sản phẩm.");
+
             if (existingCart != null)
             {
-                existingCart.Quantity += request.Quantity;
+                existingCart.Quantity = newQuantity;
                 _context.Carts.Update(existingCart);
             }
             else
@@ -44,6 +72,7 @@ namespace Controllers{
                 {
                     UserId = (int)userId,
                     ProductId = request.ProductId,
+                    ProductVariantId = request.ProductVariantId,
                     Quantity = request.Quantity,
                     CreatedAt = DateTime.Now
                 };
@@ -76,6 +105,10 @@ namespace Controllers{
             var cartItems = await _context.Carts
                 .Where(c => c.UserId == userId)
                 .Include(c => c.Product)
+                .Include(c => c.ProductVariant)
+                    .ThenInclude(pv => pv.Color)
+                .Include(c => c.ProductVariant)
+                    .ThenInclude(pv => pv.Size)
                 .ToListAsync();
 
             if (!cartItems.Any())
@@ -96,10 +129,21 @@ namespace Controllers{
             Console.WriteLine("ProductId: " + request.ProductId);
             Console.WriteLine(request.Quantity);
 
-            var cartItem = await _context.Carts.FirstOrDefaultAsync(
-                c => c.UserId == userId && c.ProductId == request.ProductId);
+            var cartItem = await _context.Carts
+                .Include(c => c.Product)
+                .Include(c => c.ProductVariant)
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == request.ProductId && c.ProductVariantId == request.ProductVariantId);
+            
             if (cartItem == null)
                 return NotFound("Không tìm thấy sản phẩm trong giỏ hàng.");
+
+            // Kiểm tra tồn kho
+            int availableStock = cartItem.ProductVariant?.StockQuantity ?? cartItem.Product.Instock;
+            if (availableStock <= 0)
+                return BadRequest("Sản phẩm đã hết hàng.");
+
+            if (request.Quantity > availableStock)
+                return BadRequest($"Số lượng vượt quá tồn kho. Chỉ còn {availableStock} sản phẩm.");
 
             cartItem.Quantity = request.Quantity;
             _context.Carts.Update(cartItem);
@@ -109,14 +153,14 @@ namespace Controllers{
         //Xoá sản phẩm khỏi giỏ hàng
         [HttpDelete("delete/{productId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteFromCart(int productId)
+        public async Task<IActionResult> DeleteFromCart(int productId, [FromQuery] int? productVariantId = null)
         {
             var userId = GetUserIdFromToken();
             if (userId == null)
                 return Unauthorized("Không tìm thấy người dùng.");
 
             var cartItem = await _context.Carts.FirstOrDefaultAsync(
-                c => c.UserId == userId && c.ProductId == productId);
+                c => c.UserId == userId && c.ProductId == productId && c.ProductVariantId == productVariantId);
 
             if (cartItem == null)
                 return NotFound("Không tìm thấy sản phẩm trong giỏ hàng.");
@@ -130,5 +174,6 @@ namespace Controllers{
     public class CartRequest{
         public int ProductId {get; set;}
         public int Quantity {get; set;}
+        public int? ProductVariantId {get; set;}
     }
 }

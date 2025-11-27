@@ -32,7 +32,7 @@ export default function CategoryPage() {
           setProducts([]);
         } else {
           setProducts(response.data);
-          // Lấy tên danh mục từ sản phẩm đầu tiên
+          // Lấy tên bộ sưu tập từ sản phẩm đầu tiên
           if (response.data[0]?.category?.name) {
             setCategoryName(response.data[0].category.name);
           }
@@ -83,7 +83,7 @@ export default function CategoryPage() {
           </Typography>
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Link href="/categories" style={{ color: '#FFB629' }}>
-              Quay lại danh mục
+              Quay lại bộ sưu tập
             </Link>
           </Box>
         </Container>
@@ -102,7 +102,7 @@ export default function CategoryPage() {
             Trang chủ
           </Link>
           <Link href="/categories" style={{ color: '#FFB629' }}>
-            Danh mục
+            Bộ sưu tập
           </Link>
           <Typography color="text.primary">{categoryName}</Typography>
         </Breadcrumbs>
@@ -116,7 +116,7 @@ export default function CategoryPage() {
         {products.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <Typography variant="h6" color="text.secondary">
-              Không có sản phẩm nào trong danh mục này
+              Không có sản phẩm nào trong bộ sưu tập này
             </Typography>
           </Box>
         ) : (

@@ -24,6 +24,12 @@ namespace Controllers
             var order = await _context.Orders
                 .Include(o => o.OrderDetails!)
                     .ThenInclude(od => od.Product)
+                .Include(o => o.OrderDetails!)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Color)
+                .Include(o => o.OrderDetails!)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Size)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
@@ -47,6 +53,12 @@ namespace Controllers
             var order = await _context.Orders
                 .Include(o => o.OrderDetails!)
                     .ThenInclude(od => od.Product)
+                .Include(o => o.OrderDetails!)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Color)
+                .Include(o => o.OrderDetails!)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Size)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)

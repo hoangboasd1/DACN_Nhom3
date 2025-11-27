@@ -33,6 +33,10 @@ namespace Models{
         public DateTime CreatAt {get; set;} = DateTime.UtcNow;
 
         public bool IsActive {get; set;} = true;
+        
+        public string Name => FullName;
+        public string Email => Username; // Assuming Username is email
+        public bool IsAdmin => Role == "Admin";
 
     }
 }

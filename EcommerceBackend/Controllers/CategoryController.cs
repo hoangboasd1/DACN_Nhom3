@@ -13,7 +13,7 @@ namespace Controllers{
             _context = context;
         }
 
-        //Tạo mới danh mục
+        //Tạo mới bộ sưu tập
         [HttpPost]
         public async Task<ActionResult<Category>> 
                 CreateCategory([FromBody] CategoryRequest request){
@@ -31,7 +31,7 @@ namespace Controllers{
             }
         }
 
-        //Lấy danh mục theo id
+        //Lấy bộ sưu tập theo id
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id){
             var category = await _context.Categories.FirstOrDefaultAsync(q => q.Id == id);
@@ -41,13 +41,13 @@ namespace Controllers{
             return category;
         }
 
-        //Lấy toàn bộ danh mục
+        //Lấy toàn bộ bộ sưu tập
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetAllCategories(){
             return await _context.Categories.ToListAsync();
         }
 
-        //Cập nhật danh mục
+        //Cập nhật bộ sưu tập
         [HttpPut("{id}")]
         public async Task<IActionResult> 
                 UpdateCategory(int id, [FromBody] CategoryRequest request){            
@@ -68,7 +68,7 @@ namespace Controllers{
             );
         }
 
-        //Xóa danh mục
+        //Xóa bộ sưu tập
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id){
             var category = await _context.Categories.FirstOrDefaultAsync(q => q.Id == id);

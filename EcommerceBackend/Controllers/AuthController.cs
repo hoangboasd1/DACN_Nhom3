@@ -28,10 +28,14 @@ public class AuthController : Controller
         var user = await _context.Users
             .FirstOrDefaultAsync(
                 u => u.Username == request.Username);
-        // String hashPassword = BCrypt.Net.BCrypt
-        //         .HashPassword(request.Password);
+        
+        // Kiểm tra user tồn tại và mật khẩu đúng
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            return Unauthorized();
+            return Unauthorized(new { message = "Tên đăng nhập hoặc mật khẩu không đúng" });
+
+        // Kiểm tra trạng thái tài khoản
+        if (!user.IsActive)
+            return Unauthorized(new { message = "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ." });
 
         //Tạo token cho phiên đăng nhập
         var token = GenerateJwtToken(user);

@@ -15,6 +15,26 @@ export interface Category {
   link: string;
 }
 
+export interface Material {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface ClothingType {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface ProductMaterial {
+  id: number;
+  productId: number;
+  materialId: number;
+  material: Material;
+  percentage?: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -22,10 +42,15 @@ export interface Product {
   price: number;
   instock: number;
   imageUrl: string;
+  gender?: string;
   categoryId: number;
   category?: Category;
+  clothingTypeId?: number;
+  clothingType?: ClothingType;
+  productMaterials?: ProductMaterial[];
   rating?: number;
   discountPrice?: number;
+  createdAt?: Date;
 }
 
 export interface ApiResponse<T> {

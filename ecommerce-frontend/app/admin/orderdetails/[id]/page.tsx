@@ -25,29 +25,40 @@ export default function OrderDetailPage() {
     fetchData();
   }, [id]);
 
+  // Tính tổng từ UnitPrice (đã bao gồm phí ship)
   const total = orderDetails.reduce(
     (sum, item) => sum + item.unitPrice * item.quantity,
     0
   );
+  
+  // Tính tổng sản phẩm (chưa bao gồm phí ship)
+  const subtotal = orderDetails.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+  
+  const shippingFee = orderDetails.length > 0 && orderDetails[0].order?.shippingFee 
+    ? orderDetails[0].order.shippingFee 
+    : total - subtotal;
 
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-gray-800">
-          📄 Chi tiết đơn hàng #{id}
+          Chi tiết đơn hàng #{id}
         </h1>
         <button
           onClick={() => router.back()}
           className="text-sm px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
         >
-          🔙 Quay lại
+          Quay lại
         </button>
       </div>
 
       {loading ? (
-        <p>⏳ Đang tải dữ liệu...</p>
+        <p>Đang tải dữ liệu...</p>
       ) : orderDetails.length === 0 ? (
-        <p>😢 Không tìm thấy sản phẩm nào trong đơn hàng.</p>
+        <p> Không tìm thấy sản phẩm nào trong đơn hàng.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white shadow rounded-lg overflow-hidden">
@@ -80,7 +91,23 @@ export default function OrderDetailPage() {
                 </tr>
               ))}
 
-              <tr className="border-t font-semibold bg-gray-50">
+              <tr className="border-t bg-gray-50">
+                <td className="px-4 py-2 text-right" colSpan={3}>
+                  Tạm tính:
+                </td>
+                <td className="px-4 py-2">
+                  {subtotal.toLocaleString()}₫
+                </td>
+              </tr>
+              <tr className="bg-gray-50">
+                <td className="px-4 py-2 text-right" colSpan={3}>
+                  Phí ship:
+                </td>
+                <td className="px-4 py-2">
+                  {shippingFee.toLocaleString()}₫
+                </td>
+              </tr>
+              <tr className="border-t font-semibold bg-gray-100">
                 <td className="px-4 py-2 text-right" colSpan={3}>
                   Tổng cộng:
                 </td>

@@ -18,6 +18,9 @@ namespace Models{
         [ForeignKey("Product")]
         public int ProductId {get; set;}
 
+        [ForeignKey("ProductVariant")]
+        public int? ProductVariantId {get; set;}
+
         [Required]
         public int Quantity {get; set;}
 
@@ -25,6 +28,7 @@ namespace Models{
 
         public User? User {get; set;}
         public Product? Product {get; set;}
+        public ProductVariant? ProductVariant {get; set;}
 
     }
 }

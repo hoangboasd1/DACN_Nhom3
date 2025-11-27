@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "../services/api";
 import Header from "@/components/layout/Header";
@@ -13,30 +13,106 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Kiểm tra xem user đã đăng nhập chưa
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      
+      if (token && user) {
+        try {
+          const userData = JSON.parse(user);
+          console.log('User đã đăng nhập, redirecting...', userData);
+          
+          // Redirect dựa trên role
+          if (userData.role === 'Admin' || userData.role === 'admin') {
+            router.replace('/admin');
+          } else {
+            router.replace('/');
+          }
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+    };
+
+    // Kiểm tra ngay khi component mount
+    checkAuth();
+
+    // Lắng nghe sự kiện storage để kiểm tra khi có thay đổi
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token' && e.newValue) {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      // Set flag to prevent auth validation during login
+      sessionStorage.setItem('isLoggingIn', 'true');
+      
       const response = await login(username, password);
-      // Lưu JWT token vào localStorage hoặc state
-      localStorage.setItem("token", response.data.token);
-
-      // Lấy role từ response
+      console.log("Login response:", response.data); // Debug log
+      
+      // Lấy role từ response trước
       const role = response.data.user?.role;
+      console.log("User role:", role); // Debug log
 
-      // Chuyển hướng theo role
-      if (role === "admin") {
-        router.push("/admin");
+      // Determine redirect path first
+      let redirectPath = "/";
+      if (role === "Admin" || role === "admin") {
+        redirectPath = "/admin";
       } else if (role === "nguoidung") {
-        router.push("/");
+        redirectPath = "/";
       }
+
+      // Save to localStorage after determining redirect path
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      // Trigger events to notify other components
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'token',
+        newValue: response.data.token,
+        oldValue: null
+      }));
+      
+      // Also trigger a custom login event for immediate updates
+      window.dispatchEvent(new CustomEvent('userLogin', {
+        detail: { 
+          token: response.data.token,
+          user: response.data.user
+        }
+      }));
+
+      // Clear login flag
+      sessionStorage.removeItem('isLoggingIn');
+
+      // Use replace instead of push to avoid back button issues
+      // Add a small delay to ensure localStorage is set and components updated
+      setTimeout(() => {
+        router.replace(redirectPath);
+      }, 150);
+      
     } catch (error: any) {
-      let msg = "Something went wrong";
-      if (error.response && typeof error.response.data === "string") {
-        msg = error.response.data;
-      } else if (error.response && typeof error.response.data === "object") {
-        msg = error.response.data.title || error.response.data.message || JSON.stringify(error.response.data);
-      }
+      // Clear login flag on error
+      sessionStorage.removeItem('isLoggingIn');
+      
+      // Sử dụng userMessage từ Axios interceptor
+      const msg = error.userMessage || "Đã xảy ra lỗi khi đăng nhập";
       setErrorMessage(msg);
     }
   };
@@ -83,6 +159,9 @@ export default function LoginPage() {
             </button>
             <p className="mt-4 text-sm text-center">
               Chưa có tài khoản? <a href="/register" className="text-blue-600 hover:underline">Đăng ký ngay</a>
+            </p>
+            <p className="mt-2 text-sm text-center">
+              <a href="/admin-login" className="text-purple-600 hover:underline font-medium">Đăng nhập Admin</a>
             </p>
           </form>
         </div>

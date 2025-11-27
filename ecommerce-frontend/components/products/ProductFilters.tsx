@@ -1,37 +1,38 @@
 'use client';
 
 import React from 'react';
-import { FiChevronDown } from 'react-icons/fi';
-import { AiFillStar } from 'react-icons/ai';
+import { FiChevronDown, FiFilter } from 'react-icons/fi';
+import MultiSelectSearch from '@/components/ui/MultiSelectSearch';
+import SingleSelectSearch from '@/components/ui/SingleSelectSearch';
 
 interface FilterProps {
   onFilterChange: (filters: {
     priceRange: [number, number];
-    brands: string[];
-    ratings: number[];
     sortBy: string;
+    clothingType: string;
+    materials: string[];
   }) => void;
+}
+
+interface ClothingType {
+  id: number;
+  name: string;
+}
+
+interface Material {
+  id: number;
+  name: string;
 }
 
 const ProductFilters = ({ onFilterChange }: FilterProps) => {
   const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 2000000]);
-  const [selectedBrands, setSelectedBrands] = React.useState<string[]>([]);
-  const [selectedRatings, setSelectedRatings] = React.useState<number[]>([]);
   const [sortBy, setSortBy] = React.useState('newest');
+  const [clothingType, setClothingType] = React.useState<string>('');
+  const [materials, setMaterials] = React.useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = React.useState(true);
-
-  // Danh sách thương hiệu thời trang
-  const brands = [
-    'UNIQLO',
-    'H&M',
-    'ZARA',
-    'Routine',
-    'Owen',
-    'Vascara',
-    'JUNO',
-    'IVY moda',
-    'CANIFA'
-  ];
+  const [clothingTypeOptions, setClothingTypeOptions] = React.useState<ClothingType[]>([]);
+  const [materialOptions, setMaterialOptions] = React.useState<Material[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   const handlePriceChange = (type: 'min' | 'max', value: string) => {
     const numValue = parseInt(value) || 0;
@@ -42,143 +43,184 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
     }
   };
 
-  const handleBrandToggle = (brand: string) => {
-    setSelectedBrands(prev =>
-      prev.includes(brand)
-        ? prev.filter(b => b !== brand)
-        : [...prev, brand]
-    );
-  };
 
-  const handleRatingToggle = (rating: number) => {
-    setSelectedRatings(prev =>
-      prev.includes(rating)
-        ? prev.filter(r => r !== rating)
-        : [...prev, rating]
-    );
-  };
+  // Load dữ liệu từ API
+  React.useEffect(() => {
+    const loadFilterOptions = async () => {
+      try {
+        setLoading(true);
+        
+        // Load clothing types
+        const clothingTypesResponse = await fetch('http://localhost:5091/api/products/clothing-types');
+        if (clothingTypesResponse.ok) {
+          const clothingTypesData = await clothingTypesResponse.json();
+          setClothingTypeOptions(clothingTypesData);
+        }
+        
+        // Load materials
+        const materialsResponse = await fetch('http://localhost:5091/api/products/materials');
+        if (materialsResponse.ok) {
+          const materialsData = await materialsResponse.json();
+          setMaterialOptions(materialsData);
+        }
+      } catch (error) {
+        console.error('Error loading filter options:', error);
+        // Fallback to hardcoded options if API fails
+        setClothingTypeOptions([
+          { id: 1, name: 'Áo thun' },
+          { id: 2, name: 'Áo sơ mi' },
+          { id: 3, name: 'Áo khoác' },
+          { id: 4, name: 'Áo len' },
+          { id: 5, name: 'Áo vest' },
+          { id: 6, name: 'Quần jean' },
+          { id: 7, name: 'Quần short' },
+          { id: 8, name: 'Quần dài' },
+          { id: 9, name: 'Váy' },
+          { id: 10, name: 'Đầm' }
+        ]);
+        setMaterialOptions([
+          { id: 1, name: 'Cotton' },
+          { id: 2, name: 'Polyester' },
+          { id: 3, name: 'Denim' },
+          { id: 4, name: 'Silk' },
+          { id: 5, name: 'Wool' },
+          { id: 6, name: 'Linen' },
+          { id: 7, name: 'Leather' },
+          { id: 8, name: 'Knit' },
+          { id: 9, name: 'Chiffon' },
+          { id: 10, name: 'Satin' }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFilterOptions();
+  }, []);
 
   React.useEffect(() => {
     onFilterChange({
       priceRange,
-      brands: selectedBrands,
-      ratings: selectedRatings,
       sortBy,
+      clothingType,
+      materials,
     });
-  }, [priceRange, selectedBrands, selectedRatings, sortBy, onFilterChange]);
+  }, [priceRange, sortBy, clothingType, materials, onFilterChange]);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm">
+    <div className="bg-white border border-gray-200">
       {/* Mobile Filter Toggle */}
       <div className="lg:hidden">
         <button
           onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="w-full flex items-center justify-between p-4 bg-[#FFB629] text-white rounded-t-lg hover:bg-[#ffa600] transition-colors font-semibold"
+          className="w-full flex items-center justify-between p-4 bg-black text-white hover:bg-gray-800 transition-colors font-normal text-sm uppercase tracking-wide"
         >
-          <span>Bộ lọc</span>
-          <FiChevronDown className={`transform transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+          <div className="flex items-center gap-2">
+            <FiFilter className="w-4 h-4" />
+            <span>Bộ lọc</span>
+          </div>
+          <FiChevronDown className={`transform transition-transform duration-200 ${isFilterOpen ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
-      <div className={`${isFilterOpen ? 'block' : 'hidden'} lg:block p-4`}>
+      <div className={`${isFilterOpen ? 'block' : 'hidden'} lg:block p-8`}>
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-8">
+          <FiFilter className="w-4 h-4 text-gray-600" />
+          <h3 className="text-lg font-light text-black tracking-wider">Bộ lọc</h3>
+        </div>
+
         {/* Sort By */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Sắp xếp theo</h3>
+        <div className="mb-8">
+          <h4 className="text-xs font-medium text-gray-600 mb-4 uppercase tracking-wide">Sắp xếp theo</h4>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="w-full p-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-[#FFB629] bg-white text-gray-800"
+            className="w-full p-3 border border-gray-300 focus:outline-none focus:border-black bg-white text-gray-800 transition-colors text-sm"
           >
             <option value="newest">Mới nhất</option>
             <option value="price_low">Giá: Thấp đến Cao</option>
             <option value="price_high">Giá: Cao đến Thấp</option>
             <option value="popular">Phổ biến nhất</option>
-            <option value="discount">Giảm giá nhiều</option>
-            <option value="bestseller">Bán chạy nhất</option>
           </select>
         </div>
 
         {/* Price Range */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Khoảng giá</h3>
-          <div className="flex gap-4">
-            <div>
-              <label className="text-sm text-gray-800 font-medium">Từ</label>
-              <input
-                type="number"
-                value={priceRange[0]}
-                onChange={(e) => handlePriceChange('min', e.target.value)}
-                className="w-full p-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-[#FFB629] bg-white text-gray-800"
-                min="0"
-                step="10000"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-gray-800 font-medium">Đến</label>
-              <input
-                type="number"
-                value={priceRange[1]}
-                onChange={(e) => handlePriceChange('max', e.target.value)}
-                className="w-full p-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-[#FFB629] bg-white text-gray-800"
-                min="0"
-                step="10000"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Brands */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Thương hiệu</h3>
-          <div className="space-y-2">
-            {brands.map((brand) => (
-              <label key={brand} className="flex items-center">
+        <div className="mb-8">
+          <h4 className="text-xs font-medium text-gray-600 mb-4 uppercase tracking-wide">Khoảng giá</h4>
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="block text-xs text-gray-600 font-medium mb-2 uppercase tracking-wide">Từ (₫)</label>
                 <input
-                  type="checkbox"
-                  checked={selectedBrands.includes(brand)}
-                  onChange={() => handleBrandToggle(brand)}
-                  className="rounded text-[#FFB629] focus:ring-[#FFB629] border-gray-200"
+                  type="number"
+                  value={priceRange[0]}
+                  onChange={(e) => handlePriceChange('min', e.target.value)}
+                  className="w-full p-3 border border-gray-300 focus:outline-none focus:border-black bg-white text-gray-800 transition-colors text-sm"
+                  min="0"
+                  step="10000"
+                  placeholder="0"
                 />
-                <span className="ml-2 text-gray-800">{brand}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Ratings */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Đánh giá</h3>
-          <div className="space-y-2">
-            {[5, 4, 3, 2, 1].map((rating) => (
-              <label key={rating} className="flex items-center">
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs text-gray-600 font-medium mb-2 uppercase tracking-wide">Đến (₫)</label>
                 <input
-                  type="checkbox"
-                  checked={selectedRatings.includes(rating)}
-                  onChange={() => handleRatingToggle(rating)}
-                  className="rounded text-[#FFB629] focus:ring-[#FFB629] border-gray-200"
+                  type="number"
+                  value={priceRange[1]}
+                  onChange={(e) => handlePriceChange('max', e.target.value)}
+                  className="w-full p-3 border border-gray-300 focus:outline-none focus:border-black bg-white text-gray-800 transition-colors text-sm"
+                  min="0"
+                  step="10000"
+                  placeholder="2000000"
                 />
-                <span className="ml-2 flex items-center text-gray-800">
-                  {[...Array(rating)].map((_, i) => (
-                    <AiFillStar key={i} className="text-[#FFB629] text-lg" />
-                  ))}
-                  {[...Array(5 - rating)].map((_, i) => (
-                    <AiFillStar key={i} className="text-gray-200 text-lg" />
-                  ))}
+              </div>
+            </div>
+            
+            {/* Price Range Display */}
+            <div className="bg-gray-50 p-4">
+              <div className="text-xs text-gray-600">
+                <span className="font-normal uppercase tracking-wide">Khoảng giá:</span> 
+                <span className="ml-2 text-black font-light">
+                  {priceRange[0].toLocaleString()}₫ - {priceRange[1].toLocaleString()}₫
                 </span>
-              </label>
-            ))}
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Clothing Type Filter */}
+        <div className="mb-8">
+          <SingleSelectSearch
+            options={clothingTypeOptions}
+            selectedValue={clothingType}
+            onSelectionChange={setClothingType}
+            placeholder="Tìm kiếm loại áo..."
+            label="Loại áo"
+            loading={loading}
+          />
+        </div>
+
+        {/* Material Filter */}
+        <div className="mb-8">
+          <MultiSelectSearch
+            options={materialOptions}
+            selectedValues={materials}
+            onSelectionChange={setMaterials}
+            placeholder="Tìm kiếm chất liệu..."
+            label="Chất liệu"
+            loading={loading}
+          />
         </div>
 
         {/* Clear Filters Button */}
         <button
           onClick={() => {
             setPriceRange([0, 2000000]);
-            setSelectedBrands([]);
-            setSelectedRatings([]);
             setSortBy('newest');
+            setClothingType('');
+            setMaterials([]);
           }}
-          className="w-full py-2 px-4 bg-orange-50 text-gray-800 font-medium rounded hover:bg-orange-100 transition-colors"
+          className="w-full py-3 px-4 bg-white border border-gray-300 text-black hover:border-black transition-colors font-normal text-sm uppercase tracking-wide"
         >
           Xóa bộ lọc
         </button>
@@ -187,4 +229,4 @@ const ProductFilters = ({ onFilterChange }: FilterProps) => {
   );
 };
 
-export default ProductFilters; 
+export default ProductFilters;

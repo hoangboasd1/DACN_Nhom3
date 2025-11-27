@@ -21,6 +21,12 @@ namespace Controllers
             // Đếm tổng đơn hàng
             var totalOrders = await _context.Orders.CountAsync();
 
+            // Đếm đơn hàng theo trạng thái
+            var pendingOrders = await _context.Orders.CountAsync(o => o.Status == "Pending");
+            var processingOrders = await _context.Orders.CountAsync(o => o.Status == "Processing");
+            var completedOrders = await _context.Orders.CountAsync(o => o.Status == "Completed");
+            var cancelledOrders = await _context.Orders.CountAsync(o => o.Status == "Cancelled");
+
             // Đếm sản phẩm còn hàng (Instock > 0)
             var activeProducts = await _context.Products
                 .CountAsync(p => p.Instock > 0);
@@ -28,15 +34,19 @@ namespace Controllers
             // Đếm tổng người dùng
             var totalUsers = await _context.Users.CountAsync();
 
-            // Doanh thu hôm nay
+            // Doanh thu hôm nay - CHỈ tính từ đơn hàng Completed
             var today = DateTime.Today;
             var revenueToday = await _context.Orders
-                .Where(o => o.OrderDate.Date == today)
+                .Where(o => o.OrderDate.Date == today && o.Status == "Completed")
                 .SumAsync(o => (decimal?)o.TotalAmount) ?? 0;
 
             return Ok(new
             {
                 totalOrders,
+                pendingOrders,
+                processingOrders,
+                completedOrders,
+                cancelledOrders,
                 activeProducts,
                 totalUsers,
                 revenueToday
@@ -64,7 +74,7 @@ namespace Controllers
         public async Task<IActionResult> GetRevenueByDayInMonth(int year, int month)
         {
             var data = await _context.Orders
-                .Where(o => o.OrderDate.Year == year && o.OrderDate.Month == month)
+                .Where(o => o.OrderDate.Year == year && o.OrderDate.Month == month && o.Status == "Completed")
                 .GroupBy(o => o.OrderDate.Date)
                 .Select(g => new
                 {
@@ -84,7 +94,7 @@ namespace Controllers
             var weekAgo = today.AddDays(-6); // tính cả hôm nay là 7 ngày
 
             var data = await _context.Orders
-                .Where(o => o.OrderDate.Date >= weekAgo && o.OrderDate.Date <= today)
+                .Where(o => o.OrderDate.Date >= weekAgo && o.OrderDate.Date <= today && o.Status == "Completed")
                 .GroupBy(o => o.OrderDate.Date)
                 .Select(g => new {
                     date = g.Key,
@@ -101,7 +111,7 @@ namespace Controllers
         public async Task<IActionResult> GetRevenueByMonth(int year)
         {
             var data = await _context.Orders
-                .Where(o => o.OrderDate.Year == year)
+                .Where(o => o.OrderDate.Year == year && o.Status == "Completed")
                 .GroupBy(o => o.OrderDate.Month)
                 .Select(g => new {
                     month = g.Key,
@@ -118,6 +128,7 @@ namespace Controllers
         public async Task<IActionResult> GetRevenueByYear()
         {
             var data = await _context.Orders
+                .Where(o => o.Status == "Completed")
                 .GroupBy(o => o.OrderDate.Year)
                 .Select(g => new {
                     year = g.Key,
