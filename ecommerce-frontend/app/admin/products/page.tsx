@@ -430,7 +430,13 @@ export default function ProductPage() {
         };
         const colorRes = await createColor(colorData);
         existingColor = colorRes.data;
-        
+
+        // Nếu vẫn không có màu hợp lệ thì dừng
+        if (!existingColor) {
+          console.error('Không tìm được màu hợp lệ từ kết quả trả về.');
+          return;
+        }
+
         // Check if this is a new color or existing one returned by backend
         const isNewColor = !colors.find(c => c.id === existingColor.id);
         if (isNewColor) {
